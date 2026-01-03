@@ -1,10 +1,15 @@
 import Darwin
 
 class ExitSubApplication: SubApplication {
-    override var command: String { "q" }
-    override var description: String { "Exit the application" }
+    init() {
+        super.init(
+            command: "q",
+            description: "Exit the application",
+            message: "Goodbye!"
+        )
+    }
     
-    override func run() {
+    override func runMenu() -> SubApplicationAction {
         exit(0)
     }
 }

@@ -11,7 +11,7 @@ class Application {
             let action = getAction()
             for subApplication in subApplications {
                 if subApplication.command == action {
-                    subApplication.run()
+                    subApplication.applicationMenu()
                     break
                 }
             }
@@ -23,11 +23,6 @@ class Application {
         for subApplication in subApplications {
             description += "\n\t\(subApplication.command) - \(subApplication.description)"
         }
-        return getDataFromUser(description: description)
+        return UserDataProvider.enterString(description)
     }
-}
-
-func getDataFromUser(description: String) -> String {
-    print(description)
-    return readLine() ?? ""
 }

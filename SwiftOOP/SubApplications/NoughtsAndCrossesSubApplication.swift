@@ -1,11 +1,16 @@
 class NoughtsAndCrossesSubApplication: SubApplication {
-    override var command: String { "t" }
-    override var description: String { "Launch the Noughts and Crosses game" }
+    init() {
+        super.init(
+            command: "t",
+            description: "Launch the Noughts and Crosses game",
+            message: "Welcome to Noughts and Crosses!"
+        )
+    }
     
     private let symbols = (
-        nothing: " ",
         player1: "X",
-        player2: "O"
+        player2: "O",
+        nothing: " "
     )
 
     private var player1Name: String = ""
@@ -17,42 +22,35 @@ class NoughtsAndCrossesSubApplication: SubApplication {
 
     private var playerState = true
     
-    override func run() {
-        print("Welcome to Noughts and Crosses!")
+    override func runMenu() -> SubApplicationAction {
+        let startGame = UserDataProvider.enterString("For a new game, enter 'b'. To exit, enter 'q'.")
+        switch startGame {
+        case "b":
+            break
+        case "q":
+            return .quit
+        default:
+            print("Invalid input. Please enter 'b' or 'q'")
+        }
+        player1Name = UserDataProvider.enterString("Please enter the player 1 name:")
+        player2Name = UserDataProvider.enterString("Please enter the player 2 name:")
+        while boardSize < 3 {
+            UserDataProvider.enterInteger("Please enter the size of the board (minimum 3):", targetVar: &boardSize)
+        }
+        board = Array(repeating: Array(repeating: nil, count: boardSize), count: boardSize)
         while true {
-            print("For a new game, enter 'b'. To exit, enter 'q'.")
-            let startGame = readLine() ?? "q"
-            switch startGame {
-            case "b":
-                break
-            case "q":
-                return
-            default:
-                print("Invalid input. Please enter 'b' or 'q'")
-                continue
-            }
-            print("Please enter the player 1 name:")
-            let enterPlayer1Name = readLine() ?? "Player 1"
-            print("Please enter the player 2 name:")
-            let enterPlayer2Name = readLine() ?? "Player 2"
-            player1Name = enterPlayer1Name
-            player2Name = enterPlayer2Name
-            print("Please enter the size of the board:")
-            enterValue(targetVar: &boardSize, limit: 3)
-            board = Array(repeating: Array(repeating: nil, count: boardSize), count: boardSize)
-            while true {
-                printField()
-                print(currentPlayerText("'s turn"))
-                if enterMove() {
-                    if checkWinRow() || checkWinColumn() || checkWinCross() {
-                        printField()
-                        print(currentPlayerText(" has won!"))
-                        break
-                    }
-                    playerState.toggle()
+            printField()
+            print(currentPlayerText("'s turn"))
+            if enterMove() {
+                if checkWinRow() || checkWinColumn() || checkWinCross() {
+                    printField()
+                    print(currentPlayerText(" has won!"))
+                    break
                 }
+                playerState.toggle()
             }
         }
+        return .resume
     }
 
     private func currentPlayerText(_ playerText: String) -> String {
@@ -67,24 +65,15 @@ class NoughtsAndCrossesSubApplication: SubApplication {
         return elements.allSatisfy({ $0 == true }) || elements.allSatisfy({ $0 == false })
     }
 
-    private func enterValue(targetVar: inout Int, limit: Int) {
-        while let input = readLine() {
-            guard let inputInt = Int(input), inputInt >= limit else {
-                print("Please enter a valid value")
-                continue
-            }
-            targetVar = inputInt
-            break
-        }
-    }
-
     private func enterMove() -> Bool {
         var row = 0
         var column = 0
-        print("Enter the row number to place your mark")
-        enterValue(targetVar: &row, limit: 1)
-        print("Enter the column number to place your mark")
-        enterValue(targetVar: &column, limit: 1)
+        while row < 1 {
+            UserDataProvider.enterInteger("Enter the row number to place your mark", targetVar: &row)
+        }
+        while column < 1 {
+            UserDataProvider.enterInteger("Enter the column number to place your mark", targetVar: &column)
+        }
         if row > boardSize || column > boardSize {
             print("That spot is not on the board, please choose another.")
             return false
